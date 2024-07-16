@@ -1,141 +1,137 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
 package interpolacionlagrange;
 
 import java.util.Scanner;
 
 /**
+ * Programa que interpola un punto (x, y) datos de un polinomio de interpolación
+ * de Lagrange de grado n, dado un conjunto de n+1 puntos. Alumno; Jose Jesus
+ * Orozco Hernandez ID; 229141 Asignacion 15b: Interpolación de Lagrange Fecha;
+ * 4/11/2022
  *
- * @author Giovanni Garrido
- * ID 00000228724
- * Métodos Numéricos
- * Profesor: Juan Francisco Vazquez Beltran
- * Asignacion 15b: Interpolación de Lagrange
- * 05/11/2021
+ * @author Jose Jesus Orozco Hernandez
  */
-
-/*
-programa que interpole un punto (x, y) datos un polinomio de interpolación de 
-Lagrange de grado n, dado un conjunto de n+1 puntos.
-*/
 public class InterpolacionLagrange {
-    
-    static final int MAXN=  11;
-    static double[][] datos=new double[MAXN][2];
 
-    static int grado;
-    static double abscisa;
+    private static double datos[][];
+    private static double abcisa;
+    private static double ordenada;
+    private static int totalPuntos;
 
-
-    /*
-    invoca datos las funciones leePuntos() e interpolacionLagrange().
-    */
+    /**
+     * Función main() que invoca a las funciones leePuntos() e
+     * interpolacionLagrange().
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
-        
-        Scanner tc = new Scanner(System.in);
-        
-
-        System.out.println(ANSI_YELLOW+"Asignacion 15b: Interpolación de Lagrange\n");
-        System.out.println(ANSI_YELLOW+"Programa que interpole un punto (x, y) a un polinomio de interpolación ");
-        System.out.println(ANSI_YELLOW+"de Lagrange de grado n, dado un conjunto de n+1 puntos."+ANSI_RESET);  
-        
-        leePuntos();
-        
+        // TODO code application logic here
+        Scanner teclado = new Scanner(System.in);
+        System.out.println("_________________________________________________________________");
+        System.out.println("|   Programa que interpole un punto (x, y) a un polinomio de    |");
+        System.out.println("|    interpolación  de Lagrange de grado n, dado un conjunto de |");
+        System.out.println("|                           n+1 puntos                          |");
+        System.out.println("-----------------------------------------------------------------");
         System.out.println("");
-        System.out.println(ANSI_GREEN+"RESULTADOS: \n"+ANSI_RESET);
-        System.out.printf("Para la abscisa: %.6f %n", abscisa);
-        System.out.printf("La ordenada es.: %.6f %n%n",interpolacionLagrange());
+        boolean total = true;
+        do {
+            try {
+                System.out.println("Escribe el numero de datos a introducir");
+                totalPuntos = teclado.nextInt();
+                if (totalPuntos > 11) {
+                    System.out.println("No se permite introducir mas de 11 de datos");
+                } else if (totalPuntos <= 0) {
+                    System.out.println("El numero de datos debe de ser menor o igual a cero");
+                } else {
+                    total = false;
+                }
+            } catch (Exception e) {
+                System.out.println("Porfavor introduzca datos validos");
+            }
+
+        } while (total);
+        datos = new double[totalPuntos][2];
+        leePuntos();
+        System.out.println("");
+        System.out.println("Resultados:");
+        System.out.printf("Para la abscisa: %.6f %n", abcisa);
+        System.out.printf("La ordenada es.: %.6f %n", ordenada);
 
     }
-    
-    /*
-    Una función llamada leePuntos() que lee las coordenadas de los puntos
-    datos los que va datos ajustar el polinomio (máximo 11) y los almacena en un 
-    arreglo bidimensional
-    */
-    public static void leePuntos(){
 
-        
-        Scanner sc=new Scanner(System.in);
-        
-        System.out.print("\nIngrese el grado n del polinomio (maximo 10): ");
-        grado=sc.nextInt();
-        while (grado>11||grado<1){
-            System.out.println("\nEl grado n tiene que ser entre 1 y 10 ");
-            System.out.print("Ingrese otro grado n del polinomio (maximo 10): ");
-            grado=sc.nextInt();
+    /**
+     * Funcion que lee las coordenadas de los puntos a los que va a ajustar el
+     * polinomio (máximo 11) y los almacena en un arreglo bidimensional.
+     */
+    public static void leePuntos() {
+        Scanner teclado = new Scanner(System.in);
+        for (int i = 0; i < totalPuntos; i++) {
+            System.out.println("Porfavor introduzca el par " + (i + 1) + " de datos como se muestra dato(x,y),");
+            do {
+                try {
+                    System.out.println("Introduce el valor x:");
+                    datos[i][0] = teclado.nextDouble();
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Porfavor introduzca datos validos no letras,o caracter extraño.");
+                }
+            } while (true);
+            do {
+                try {
+                    System.out.println("Introduce el valor de f(x):");
+                    datos[i][1] = teclado.nextDouble();
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Porfavor introduzca datos validos no letras,o caracter extraño.");
+                }
+            } while (true);
         }
-            
-
-        System.out.println("\nIngrese las coordenadas: ");
-        for (int i = 0; i <= grado; i++) {// Ingresa las coordenadas
-            for (int j = 0; j < 2; j++) {
-                if(j==0)
-                    System.out.print("\nIngrese el valor de X" + i+ " ...: ");
-                else
-                    System.out.print("Ingrese el valor de f(X)" + i + " : ");
-                
-                datos[i][j]=sc.nextDouble();
-
+        boolean salida = true;
+        double abscisa = 0;
+        do {
+            try {
+                System.out.println("Introduce la abscisa del punto que se desea interpolar.");
+                double punto = teclado.nextDouble();
+                if (punto < datos[0][0] || punto > datos[totalPuntos - 1][0]) {
+                    System.out.println("La abcisa del punto que desea interpolar debe de estar en el rango permitido");
+                    System.out.println("No debe de ser menor que " + datos[0][0] + " y mayor que " + datos[totalPuntos - 1][0]);
+                } else {
+                    InterpolacionLagrange.abcisa = punto;
+                    abscisa=punto;
+                    salida = false;
+                }
+            } catch (Exception e) {
+                System.out.println("Porfavor introduzca datos validos no letras,o caracter extraño.");
             }
+
+        } while (salida);
+        InterpolacionLagrange.ordenada = interpolacionLagrange(abscisa);
+    }
+
+    /**
+     * Función que interpola el punto de abscisa x al polinomio de grado grado y
+     * cuyos puntos están en un arreglo bidimensional.La función regresa la
+     * ordenada del punto a interpolar.
+     *
+     * @param abscisa abcisa o x
+     * @return ordenada
+     */
+    public static double interpolacionLagrange(double abscisa) {
+
+        double suma = 0.0;
+        for (int i = 0; i < totalPuntos; i++) {
+            double multi = 1;
+            for (int j = 0; j < totalPuntos; j++) {
+                if (i != j) {
+                    multi *= ((abscisa - datos[j][0]) / (datos[i][0] - datos[j][0]));
+                }
+            }
+            suma += ((datos[i][1]) * (multi));
         }
-        
-        System.out.print("\nIngrese la abscisa del punto que se desea interpolar: ");
-        abscisa=sc.nextDouble();
-        
-        System.out.println("\n\nAbscisa que se desea interpolar: " + abscisa);
-        System.out.println("\nCoordenadas Ingresados: ");
-        System.out.println("-------------------------------");
-        System.out.println("|        X     |      f(x)    |");
-        System.out.println("-------------------------------");
-
-        for (int x=0; x < grado; x++) {
-            System.out.print("|");
-                for (int y=0; y < 2; y++) {
-                    System.out.printf ("%11.6f ",datos[x][y]);
-                    if (y!=datos[x].length) System.out.print(" |  ");
-                    }
-            System.out.println("");
-         }
-        System.out.println("-------------------------------");
-        
-
-    }//end leePuntos()
-    
-    /*
-    interpola el punto de abscisa x al polinomio de grado grado y cuyos puntos 
-    están en un arreglo bidimensional. La función regresa la ordenada del punto
-    datos interpolar.
-    */
-    
-    public static double interpolacionLagrange(){
-        double interpolacion=0;
-        double dividendo;
-        double divisor;
-        
-        for(int i=0;i<=grado;i++){
-            divisor=1;
-            dividendo=1;
-            
-            for(int j=0;j<=grado;j++){
-                if (i==j)
-                    continue;
-                dividendo=dividendo*(abscisa-datos[j][0]);
-                divisor=divisor*(datos[i][0]-datos[j][0]);
-
-        }
-
-            interpolacion=interpolacion+((dividendo/divisor)*datos[i][1]);
-
-        }
-
-        return interpolacion;
-    }//end interpolacionLagrange()
-    
-    /*
-    para dar color datos la salida de texto
-    */
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
+        return suma;
+    }
 
 }
